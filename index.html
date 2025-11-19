@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Shooting Hearts — Deluxe Romantic Edition</title>
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background: linear-gradient(120deg, #ff91c1, #ffb3e6, #ffd6f5);
+        background-size: 300% 300%;
+        animation: bgMove 10s ease infinite;
+        font-family: "Poppins", sans-serif;
+    }
+
+    @keyframes bgMove {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    .game-container {
+        width: 90%;
+        max-width: 420px;
+        height: 600px;
+        position: relative;
+        overflow: hidden;
+        border-radius: 25px;
+        padding: 20px;
+        box-shadow: 0 0 25px rgba(255, 0, 100, 0.4);
+        backdrop-filter: blur(8px);
+        border: 2px solid rgba(255, 255, 255, 0.5);
+        background: rgba(255, 255, 255, 0.15);
+    }
+
+    h2 {
+        text-align: center;
+        color: #fff;
+        font-weight: 600;
+        font-size: 22px;
+        text-shadow: 0 0 10px #ff98d9;
+        margin-bottom: 12px;
+    }
+
+    .heart {
+        position: absolute;
+        width: 40px;
+        height: 40px;
+        background: #ff2f89;
+        transform: rotate(-45deg);
+        animation: fall linear;
+        filter: drop-shadow(0 0 8px #ff5dbb);
+        cursor: pointer;
+        transition: transform 0.2s ease;
+    }
+
+    .heart:before, .heart:after {
+        content: "";
+        position: absolute;
+        width: 40px;
+        height: 40px;
+        background: #ff2f89;
+        border-radius: 50%;
+    }
+
+    .heart:before { top: -20px; left: 0; }
+    .heart:after { left: 20px; top: 0; }
+
+    @keyframes fall {
+        from { transform: translateY(-150px) rotate(-45deg) scale(0.8); }
+        to { transform: translateY(800px) rotate(-45deg) scale(1.2); }
+    }
+
+    .particle {
+        position: absolute;
+        width: 12px;
+        height: 12px;
+        background: pink;
+        opacity: 0;
+        border-radius: 50%;
+        animation: pop 0.6s ease forwards;
+        pointer-events: none;
+    }
+
+    @keyframes pop {
+        0% { opacity: 1; transform: scale(1); }
+        100% { opacity: 0; transform: scale(2); }
+    }
+
+    #restart {
+        margin-top: 12px;
+        padding: 12px 22px;
+        border-radius: 18px;
+        border: none;
+        background: rgba(255, 255, 255, 0.3);
+        backdrop-filter: blur(6px);
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+        box-shadow: 0 0 12px rgba(255, 255, 255, 0.3);
+        transition: 0.3s;
+    }
+
+    #restart:hover {
+        background: rgba(255, 255, 255, 0.5);
+        box-shadow: 0 0 20px rgba(255, 200, 240, 0.6);
+    }
+</style>
+</head>
+<body>
+
+<h2>"Cada coração que cai é um pouquinho do carinho que sinto por você."</h2>
+
+<div class="game-container" id="game"></div>
+<button id="restart">Reiniciar</button>
+
+<script>
+const game = document.getElementById("game");
+let clickCount = 0;
+let secretMode = false;
+let interval;
+
+function createHeart(multiplier = 1) {
+    const heart = document.createElement("div");
+    heart.classList.add("heart");
+
+    let size = 30 + Math.random() * 30;
+    heart.style.width = size + "px";
+    heart.style.height = size + "px";
+    heart.style.left = Math.random() * 90 + "%";
+
+    let duration = 3 + Math.random() * 3;
+    heart.style.animationDuration = duration + "s";
+
+    heart.addEventListener("click", () => {
+        clickCount++;
+        createParticles(heart.offsetLeft, heart.offsetTop);
+        heart.remove();
+        
+        if (!secretMode && clickCount >= 5) {
+            activateSecretMode();
+        }
+    });
+
+    game.appendChild(heart);
+
+    setTimeout(() => heart.remove(), duration * 1000);
+}
+
+function createParticles(x, y) {
+    for (let i = 0; i < 6; i++) {
+        const p = document.createElement("div");
+        p.classList.add("particle");
+        p.style.left = x + (Math.random() * 30 - 15) + "px";
+        p.style.top = y + (Math.random() * 30 - 15) + "px";
+        game.appendChild(p);
+        setTimeout(() => p.remove(), 600);
+    }
+}
+
+function startNormalRain() {
+    interval = setInterval(() => createHeart(), 400);
+}
+
+function activateSecretMode() {
+    secretMode = true;
+    clearInterval(interval);
+
+    const msg = document.createElement("div");
+    msg.innerHTML = "<h2 style='color:white; text-shadow:0 0 10px #ff4ec9;'>Modo Secreto Ativado: Tempestade de Amor 💖</h2>";
+    msg.style.position = "absolute";
+    msg.style.top = "10px";
+    msg.style.width = "100%";
+    msg.style.textAlign = "center";
+    msg.style.animation = "fadeIn 1s ease";
+    document.body.appendChild(msg);
+
+    interval = setInterval(() => {
+        for (let i = 0; i < 6; i++) createHeart();
+    }, 150);
+}
+
+startNormalRain();
+
+document.getElementById("restart").onclick = () => {
+    game.innerHTML = "";
+    clickCount = 0;
+    secretMode = false;
+    clearInterval(interval);
+    startNormalRain();
+};
+</script>
+</body>
+</html>
